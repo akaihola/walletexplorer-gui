@@ -102,7 +102,12 @@
             // create a network
             var container = document.getElementById("mynetwork");
             var options = {
-                layout: { randomSeed: seed }, // just to make sure the layout stays the same when re-drawing
+                layout: {
+                    hierarchical: {
+                        direction: "LR"
+                    },
+                    randomSeed: seed  // just to make sure the layout stays the same when re-drawing
+                },
                 interaction: { keyboard: true },
                 edges: { arrows: "to" },
                 manipulation: {
@@ -199,14 +204,17 @@
             nodes[tx_id] = {
                 group: "transaction",
                 id: tx_id,
-                label: tx_id.substring(0, 8)
+                label: tx_id.substring(0, 8),
+                blockHeight: data.block_height,
+                title: `Block height: ${data.block_height}`
             };
             data.in.forEach((input) => {
                 nodes[input.address] = {
                     group: "address",
                     id: input.address,
                     label: input.address.substring(0, 8),
-                    nextTx: input.next_tx
+                    nextTx: input.next_tx,
+                    blockHeight: data.block_height - 0.5
                 };
                 edges[`${input.address}-${tx_id}`] = {
                     from: input.address,
@@ -219,7 +227,8 @@
                     group: "address",
                     id: output.address,
                     label: output.address.substring(0, 8),
-                    nextTx: output.next_tx
+                    nextTx: output.next_tx,
+                    blockHeight: data.block_height + 0.5
                 };
                 edges[`${tx_id}-${output.address}`] = {
                     from: tx_id,
@@ -227,6 +236,18 @@
                     label: output.amount.toString()
                 };
             });
+            const heights = new Set(
+                Object.values(nodes)
+                    .map((node) => node.blockHeight)
+            );
+            const heightPositions = {};
+            [...heights].sort().map((height, index) => {
+                heightPositions[height] = index;
+            });
+            Object.values(nodes)
+                .forEach((node) => {
+                    node.level = heightPositions[node.blockHeight];  // only has effect in hierarchical layout
+                });
         }
 
         async function expandAddress() {
