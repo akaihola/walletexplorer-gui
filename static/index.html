@@ -71,8 +71,8 @@
         var nodes = null;
         var edges = null;
         var network = null;
-        // randomly create some nodes and edges
-        var data = getScaleFreeNetwork(25);
+        // make the graph empty when the page is loaded
+        var data = { nodes: [], edges: [] };
         var seed = 2;
 
         function destroy() {
