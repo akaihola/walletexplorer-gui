@@ -118,7 +118,6 @@
                     hover: true
                 },
                 groups: {
-                    time: { shape: "text" },
                     transaction: {
                         shape: "ellipse",
                         color: {
@@ -193,13 +192,6 @@
             const data = await response.json();
             const inputTotal = data.in.reduce((sum, input) => sum + input.amount, 0);
             const isodatetime = new Date(data.time * 1000).toISOString().replace("T", " ").replace(/\.\d+Z$/, "");
-            nodes[data.time.toString()] = {
-                group: "time",
-                id: data.time.toString(),
-                label: isodatetime,
-                blockHeight: data.block_height,
-                title: `Block height: ${data.block_height}\n${isodatetime}`
-            };
             nodes[tx_id] = {
                 group: "transaction",
                 id: tx_id,
