@@ -1,8 +1,7 @@
-use warp::Filter;
 use std::convert::Infallible;
+
+use warp::Filter;
 use warp::http::Uri;
-use warp::hyper::client::HttpConnector;
-use warp::hyper::Body;
 use warp::hyper::Client;
 use warp::hyper::Response;
 use warp::path::FullPath;
