@@ -9,10 +9,23 @@
         select {
             font: 10pt sans;
         }
-        #mynetwork {
-            position: relative;
-            width: 800px;
-            height: 600px;
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        body > * {
+            flex-grow: 0;
+            flex-shrink: 0;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+        body > #mynetwork {
+            flex-grow: 1;
+            width: calc(100% - 2px);
             border: 1px solid lightgray;
         }
         table.legend_table {
@@ -140,6 +153,10 @@
                 { nodes: Object.values(nodes), edges: Object.values(edges) },
                 options
             );
+            network.once('afterDrawing', () => {
+                // work-around for flex layout, see https://github.com/visjs/vis-network/issues/2156
+                container.style.height = `${container.scrollHeight - 3}px`;
+            })
         }
 
         function clearPopUp() {
@@ -228,6 +245,7 @@
 </head>
 
 <body onload="init();">
+<header>
 <h2>Editing the nodes and edges</h2>
 <!-- An input field for pasting transaction IDs: -->
 <p>
@@ -257,7 +275,7 @@
     <input type="button" value="save" id="saveButton" />
     <input type="button" value="cancel" id="cancelButton" />
 </div>
-<br />
+</header>
 <div id="mynetwork"></div>
 </body>
 </html>
