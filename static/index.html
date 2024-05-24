@@ -166,12 +166,22 @@
                 alert("Transaction ID must be 64 characters long");
                 return;
             }
-            nodes.push({
-                id: tx_id,
-                // only show the first 8 characters of the transaction ID
-                label: tx_id.substring(0, 8),
-            });
-            network.setData({ nodes: nodes, edges: edges });
+            // Query the transaction from /api/1/tx?txid=:tx_id&caller=walletexplorer-gui
+            // and add it to the graph:
+            fetch(`/api/1/tx?txid=${tx_id}&caller=walletexplorer-gui`)
+                .then((response) => response.json() )
+                .then((data) => {
+                    nodes.push({ id: tx_id, label: tx_id.substring(0, 8) });
+                    data.in.forEach((input) => {
+                        nodes.push({ id: input.address, label: input.address.substring(0, 8) });
+                        edges.push({ from: input.address, to: tx_id, label: input.amount.toString() });
+                    });
+                    data.out.forEach((output) => {
+                        nodes.push({ id: output.address, label: output.address.substring(0, 8) });
+                        edges.push({ from: tx_id, to: output.address, label: output.amount.toString() });
+                    });
+                    network.setData({ nodes: nodes, edges: edges });
+                });
         }
     </script>
 </head>
