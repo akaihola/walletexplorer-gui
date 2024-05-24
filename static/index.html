@@ -73,6 +73,31 @@
             return value.toString()
         }
 
+        function download() {
+            const canvas = document.getElementsByTagName("canvas")[0];
+            let downloadLink = document.createElement("a");
+            downloadLink.setAttribute("download", "WalletExplorer-GUI.png");
+            const oldWidth = canvas.width;
+            const oldHeight = canvas.height;
+            canvas.style.width = "2480px";
+            canvas.style.height = "3507px";
+            canvas.width = 2480;
+            canvas.height = 3507;
+            network.fit();
+            setTimeout(function() {
+                canvas.toBlob(function (blob) {
+                    let url = URL.createObjectURL(blob);
+                    downloadLink.setAttribute("href", url);
+                    downloadLink.click();
+                });
+                canvas.width = oldWidth;
+                canvas.height = oldHeight;
+                canvas.style.width = "100%";
+                canvas.style.height = "100%";
+                network.fit();
+            }, 0)
+        }
+
         function draw() {
             destroy();
             nodes = {};
@@ -267,6 +292,11 @@
 <!-- A button for expanding the selected address: -->
 <p>
     <input type="button" value="Expand selected address" onclick="expandAddress()">
+</p>
+
+<!-- A button for downloading the image: -->
+<p>
+    <input type="button" value="Download" onclick="download()">
 </p>
 
 </header>
