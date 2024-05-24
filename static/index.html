@@ -278,13 +278,15 @@
                     id: output.address,
                     label: output.address.substring(0, 8),
                     nextTx: output.next_tx,
-                    blockHeight: data.block_height + 0.5
+                    blockHeight: data.block_height + 0.5,
+                    title: `${output.address}\n${output.label || ""}`
                 };
                 edges[`${tx_id}-${output.address}`] = {
                     from: tx_id,
                     to: output.address,
                     label: output.amount.toString(),
-                    value: output.amount
+                    value: output.amount,
+                    title: `${output.amount.toString()}\n${output.address}`
                 };
             });
             data.in.forEach((input) => {
@@ -293,13 +295,15 @@
                     id: input.address,
                     label: input.address.substring(0, 8),
                     nextTx: input.next_tx,
-                    blockHeight: data.block_height - 0.5
+                    blockHeight: data.block_height - 0.5,
+                    title: `${input.address}\n${input.label || ""}`
                 };
                 edges[`${input.address}-${tx_id}`] = {
                     from: input.address,
                     to: tx_id,
                     label: input.amount.toString(),
-                    value: input.amount
+                    value: input.amount,
+                    title: `${input.amount.toString()}\n${input.address}`
                 };
             });
             const heights = new Set(
