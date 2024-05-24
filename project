@@ -1,0 +1,2 @@
+cargo new minimal_web_server
+cd minimal_web_server

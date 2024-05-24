@@ -1,0 +1,190 @@
+
+2024-05-24T11:00:10.994179
+================================ System Message ================================
+
+You will get instructions for code to write.
+You will write a very long answer. Make sure that every detail of the architecture is, in the end, implemented as code.
+Think step by step and reason yourself to the correct decisions to make sure we get it right.
+First lay out the names of the core classes, functions, methods that will be necessary, As well as a quick comment on their purpose.
+
+You will output the content of each file necessary to achieve the goal, including ALL code.
+Represent files like so:
+
+FILENAME
+```
+CODE
+```
+
+The following tokens must be replaced like so:
+FILENAME is the lowercase combined path and file name including the file extension
+CODE is the code in the file
+
+Example representation of a file:
+
+src/hello_world.py
+```
+print("Hello World")
+```
+
+Do not comment on what every file does. Please note that the code should be fully functional. No placeholders.
+
+
+You will start with the "entrypoint" file, then go to the ones that are imported by that file, and so on.
+Please note that the code should be fully functional. No placeholders.
+
+Follow a language and framework appropriate best practice file naming convention.
+Make sure that files contain all imports, types etc.  The code should be fully functional. Make sure that code in different files are compatible with each other.
+Ensure to implement all code, if you are unsure, write a plausible implementation.
+Include module dependency or package manager dependency definition file.
+Before you finish, double check that all parts of the architecture is present in the files.
+
+When you are done, write finish with "this concludes a fully working implementation".
+
+Useful to know:
+Almost always put different classes in different files.
+Always use the programming language the user asks for.
+For Python, you always create an appropriate requirements.txt file.
+For NodeJS, you always create an appropriate package.json file.
+Always add a comment briefly describing the purpose of the function definition.
+Add comments explaining very complex bits of logic.
+Always follow the best practices for the requested languages for folder/file structure and how to package the project.
+
+
+Python toolbelt preferences:
+- pytest
+- dataclasses
+
+
+================================ Human Message =================================
+
+Request: Minimal web server which
+- serves a subdirectory tree statically at the root URL
+- proxies all `/api/*` requests to https://www.walletexplorer.com/api/
+
+Write it in Rust in the simplest, shortest and easiest to understand possible way.
+Use whatever crates make this possible.
+
+
+================================== Ai Message ==================================
+
+To create a minimal web server in Rust that serves a subdirectory tree statically at the root URL and proxies all `/api/*` requests to `https://www.walletexplorer.com/api/`, we can use the `warp` crate for the web server and request handling, and the `reqwest` crate for making HTTP requests to the external API.
+
+Here is the step-by-step implementation:
+
+1. Create a new Rust project.
+2. Add the necessary dependencies.
+3. Implement the main server logic.
+4. Implement the static file serving.
+5. Implement the proxy logic for `/api/*` requests.
+
+Let's start with the project setup and dependencies.
+
+### Step 1: Create a new Rust project
+
+Run the following command to create a new Rust project:
+
+```sh
+cargo new minimal_web_server
+cd minimal_web_server
+```
+
+### Step 2: Add the necessary dependencies
+
+Update the `Cargo.toml` file to include the `warp` and `reqwest` crates.
+
+Cargo.toml
+```
+[package]
+name = "minimal_web_server"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+warp = "0.3"
+reqwest = { version = "0.11", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+```
+
+### Step 3: Implement the main server logic
+
+Create the main entry point for the server.
+
+src/main.rs
+```rust
+use warp::Filter;
+use std::convert::Infallible;
+use warp::http::Uri;
+use warp::hyper::client::HttpConnector;
+use warp::hyper::Body;
+use warp::hyper::Client;
+use warp::hyper::Response;
+use warp::path::FullPath;
+
+#[tokio::main]
+async fn main() {
+    // Static file serving
+    let static_files = warp::fs::dir("static");
+
+    // API proxy
+    let api_proxy = warp::path("api")
+        .and(warp::path::full())
+        .and_then(proxy_handler);
+
+    // Combine the routes
+    let routes = static_files.or(api_proxy);
+
+    // Start the server
+    warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
+}
+
+// Proxy handler function
+async fn proxy_handler(full_path: FullPath) -> Result<impl warp::Reply, Infallible> {
+    let client = Client::new();
+    let uri = format!("https://www.walletexplorer.com{}", full_path.as_str())
+        .parse::<Uri>()
+        .unwrap();
+
+    let resp = client.get(uri).await.unwrap();
+    let body = resp.into_body();
+
+    Ok(Response::new(body))
+}
+```
+
+### Step 4: Implement the static file serving
+
+Create a directory named `static` in the project root and add some static files to it. For example, create an `index.html` file.
+
+static/index.html
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Web Server</title>
+</head>
+<body>
+    <h1>Welcome to the Minimal Web Server</h1>
+</body>
+</html>
+```
+
+### Step 5: Implement the proxy logic for `/api/*` requests
+
+The proxy logic is already implemented in the `proxy_handler` function in `src/main.rs`.
+
+### Final Project Structure
+
+```
+minimal_web_server/
+├── Cargo.toml
+├── src
+│   └── main.rs
+└── static
+    └── index.html
+```
+
+This concludes a fully working implementation.

@@ -1,0 +1,116 @@
+
+2024-05-24T11:00:12.398536
+================================ System Message ================================
+
+You will get information about a codebase that is currently on disk in the current folder.
+The user will ask you to write a script that runs the code in a specific way.
+You will answer with code blocks that include all the necessary terminal commands.
+Do not install globally. Do not use sudo.
+Do not explain the code, just give the commands.
+Do not use placeholders, use example values (like . for a folder argument) if necessary.
+
+
+================================ Human Message =================================
+
+
+        Make a unix script that
+        a) installs dependencies
+        b) runs all necessary parts of the codebase (in parallel if necessary)
+        
+Information about the codebase:
+
+```
+File: project
+1 cargo new minimal_web_server
+2 cd minimal_web_server
+
+File: Cargo.toml
+1 [package]
+2 name = "minimal_web_server"
+3 version = "0.1.0"
+4 edition = "2018"
+5 
+6 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+7 
+8 [dependencies]
+9 warp = "0.3"
+10 reqwest = { version = "0.11", features = ["json"] }
+11 tokio = { version = "1", features = ["full"] }
+
+File: src/main.rs
+1 use warp::Filter;
+2 use std::convert::Infallible;
+3 use warp::http::Uri;
+4 use warp::hyper::client::HttpConnector;
+5 use warp::hyper::Body;
+6 use warp::hyper::Client;
+7 use warp::hyper::Response;
+8 use warp::path::FullPath;
+9 
+10 #[tokio::main]
+11 async fn main() {
+12     // Static file serving
+13     let static_files = warp::fs::dir("static");
+14 
+15     // API proxy
+16     let api_proxy = warp::path("api")
+17         .and(warp::path::full())
+18         .and_then(proxy_handler);
+19 
+20     // Combine the routes
+21     let routes = static_files.or(api_proxy);
+22 
+23     // Start the server
+24     warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
+25 }
+26 
+27 // Proxy handler function
+28 async fn proxy_handler(full_path: FullPath) -> Result<impl warp::Reply, Infallible> {
+29     let client = Client::new();
+30     let uri = format!("https://www.walletexplorer.com{}", full_path.as_str())
+31         .parse::<Uri>()
+32         .unwrap();
+33 
+34     let resp = client.get(uri).await.unwrap();
+35     let body = resp.into_body();
+36 
+37     Ok(Response::new(body))
+38 }
+
+File: static/index.html
+1 <!DOCTYPE html>
+2 <html lang="en">
+3 <head>
+4     <meta charset="UTF-8">
+5     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+6     <title>Minimal Web Server</title>
+7 </head>
+8 <body>
+9     <h1>Welcome to the Minimal Web Server</h1>
+10 </body>
+11 </html>
+
+File: Structure
+1 minimal_web_server/
+2 ├── Cargo.toml
+3 ├── src
+4 │   └── main.rs
+5 └── static
+6     └── index.html
+
+```
+
+================================== Ai Message ==================================
+
+```sh
+#!/bin/bash
+
+# Navigate to the project directory
+cd minimal_web_server
+
+# Install dependencies
+cargo build
+
+# Run the codebase
+cargo run
+```

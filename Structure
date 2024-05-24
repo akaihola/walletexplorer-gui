@@ -1,0 +1,6 @@
+minimal_web_server/
+├── Cargo.toml
+├── src
+│   └── main.rs
+└── static
+    └── index.html
