@@ -126,7 +126,10 @@
                     },
                     randomSeed: seed  // just to make sure the layout stays the same when re-drawing
                 },
-                interaction: { keyboard: true },
+                interaction: {
+                    keyboard: true,
+                    hover: true
+                },
                 groups: {
                     time: { shape: "text" },
                     transaction: {
@@ -154,6 +157,11 @@
                 },
                 edges: {
                     arrows: "to",
+                    color: {
+                        color: "#848484",
+                        highlight: "#384e4e",
+                        hover: "#000000",
+                    },
                     smooth: {
                         type: "horizontal",
                         roundness: 0.4
