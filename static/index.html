@@ -144,6 +144,7 @@
                 },
                 edges: {
                     arrows: "to",
+                    font: { strokeWidth: 4 },
                     color: {
                         color: "#848484",
                         highlight: "#384e4e",
@@ -223,6 +224,7 @@
                     from: tx_id,
                     to: output.address,
                     label: truncateFloat(output.amount),
+                    font: { vadjust: 50 },
                     value: output.amount,
                     title: `${output.amount.toString()}\n${output.address}`
                 };
