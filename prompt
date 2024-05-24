@@ -1,0 +1,6 @@
+Minimal web server which
+- serves a subdirectory tree statically at the root URL
+- proxies all `/api/*` requests to https://www.walletexplorer.com/api/
+
+Write it in Rust in the simplest, shortest and easiest to understand possible way.
+Use whatever crates make this possible.
