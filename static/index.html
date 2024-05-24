@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Vis Network | Manipulation </title>
+    <title>WalletExplorer GUI</title>
 
     <style type="text/css">
         body,
@@ -27,45 +27,6 @@
             flex-grow: 1;
             width: calc(100% - 2px);
             border: 1px solid lightgray;
-        }
-        table.legend_table {
-            font-size: 11px;
-            border-width: 1px;
-            border-color: #d3d3d3;
-            border-style: solid;
-        }
-        table.legend_table,
-        td {
-            border-width: 1px;
-            border-color: #d3d3d3;
-            border-style: solid;
-            padding: 2px;
-        }
-        div.table_content {
-            width: 80px;
-            text-align: center;
-        }
-        div.table_description {
-            width: 100px;
-        }
-
-        #operation {
-            font-size: 28px;
-        }
-        #network-popUp {
-            display: none;
-            position: absolute;
-            top: 350px;
-            left: 170px;
-            z-index: 299;
-            width: 250px;
-            height: 120px;
-            background-color: #f9f9f9;
-            border-style: solid;
-            border-width: 3px;
-            border-color: #5394ed;
-            padding: 10px;
-            text-align: center;
         }
     </style>
 
@@ -172,49 +133,7 @@
                         customScalingFunction: logScaler,
                     }
                 },
-                physics: { enabled: false },
-                manipulation: {
-                    addNode: function (data, callback) {
-                        // filling in the popup DOM elements
-                        document.getElementById("operation").innerText = "Add Node";
-                        document.getElementById("node-id").value = data.id;
-                        document.getElementById("node-label").value = data.label;
-                        document.getElementById("saveButton").onclick = saveData.bind(
-                            this,
-                            data,
-                            callback
-                        );
-                        document.getElementById("cancelButton").onclick =
-                            clearPopUp.bind();
-                        document.getElementById("network-popUp").style.display = "block";
-                    },
-                    editNode: function (data, callback) {
-                        // filling in the popup DOM elements
-                        document.getElementById("operation").innerText = "Edit Node";
-                        document.getElementById("node-id").value = data.id;
-                        document.getElementById("node-label").value = data.label;
-                        document.getElementById("saveButton").onclick = saveData.bind(
-                            this,
-                            data,
-                            callback
-                        );
-                        document.getElementById("cancelButton").onclick = cancelEdit.bind(
-                            this,
-                            callback
-                        );
-                        document.getElementById("network-popUp").style.display = "block";
-                    },
-                    addEdge: function (data, callback) {
-                        if (data.from == data.to) {
-                            var r = confirm("Do you want to connect the node to itself?");
-                            if (r == true) {
-                                callback(data);
-                            }
-                        } else {
-                            callback(data);
-                        }
-                    },
-                },
+                physics: { enabled: false }
             };
             network = new vis.Network(
                 container,
@@ -225,24 +144,6 @@
                 // work-around for flex layout, see https://github.com/visjs/vis-network/issues/2156
                 container.style.height = `${container.scrollHeight - 3}px`;
             })
-        }
-
-        function clearPopUp() {
-            document.getElementById("saveButton").onclick = null;
-            document.getElementById("cancelButton").onclick = null;
-            document.getElementById("network-popUp").style.display = "none";
-        }
-
-        function cancelEdit(callback) {
-            clearPopUp();
-            callback(null);
-        }
-
-        function saveData(data, callback) {
-            data.id = document.getElementById("node-id").value;
-            data.label = document.getElementById("node-label").value;
-            clearPopUp();
-            callback(data);
         }
 
         function init() {
@@ -355,7 +256,7 @@
 
 <body onload="init();">
 <header>
-<h2>Editing the nodes and edges</h2>
+<h2>WalletExplorer.com GUI</h2>
 <!-- An input field for pasting transaction IDs: -->
 <p>
     <label for="tx_id">Transaction ID:</label>
@@ -368,22 +269,6 @@
     <input type="button" value="Expand selected address" onclick="expandAddress()">
 </p>
 
-
-<div id="network-popUp">
-    <span id="operation">node</span> <br />
-    <table style="margin: auto">
-        <tr>
-            <td>id</td>
-            <td><input id="node-id" value="new value" /></td>
-        </tr>
-        <tr>
-            <td>label</td>
-            <td><input id="node-label" value="new value" /></td>
-        </tr>
-    </table>
-    <input type="button" value="save" id="saveButton" />
-    <input type="button" value="cancel" id="cancelButton" />
-</div>
 </header>
 <div id="mynetwork"></div>
 </body>
