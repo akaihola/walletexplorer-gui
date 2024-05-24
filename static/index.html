@@ -57,9 +57,10 @@
 
         function logScaler(min, max, total, value) {
             if (max === min) return 0;
-            const log_min = Math.log(min);
-            const log_max = Math.log(max);
-            const log_val = Math.log(value);
+            // Add one satoshi to avoid log(0)
+            const log_min = Math.log(min + 1e-8);
+            const log_max = Math.log(max + 1e-8);
+            const log_val = Math.log(value + 1e-8);
             return (log_val - log_min) / (log_max - log_min);
         }
 
