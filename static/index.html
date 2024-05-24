@@ -159,11 +159,32 @@
         function init() {
             draw();
         }
+
+        function addTransaction() {
+            const tx_id = document.getElementById("tx_id").value;
+            if (tx_id.length !== 64) {
+                alert("Transaction ID must be 64 characters long");
+                return;
+            }
+            nodes.push({
+                id: tx_id,
+                // only show the first 8 characters of the transaction ID
+                label: tx_id.substring(0, 8),
+            });
+            network.setData({ nodes: nodes, edges: edges });
+        }
     </script>
 </head>
 
 <body onload="init();">
 <h2>Editing the nodes and edges</h2>
+<!-- An input field for pasting transaction IDs: -->
+<p>
+    <label for="tx_id">Transaction ID:</label>
+    <input type="text" id="tx_id" name="tx_id" size="64" maxlength="64">
+    <input type="button" value="Add" onclick="addTransaction()">
+</p>
+
 
 <div id="network-popUp">
     <span id="operation">node</span> <br />
