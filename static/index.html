@@ -120,6 +120,7 @@
                 groups: {
                     transaction: {
                         shape: "ellipse",
+                        font: { multi: "markdown" },
                         color: {
                             background: "#bbffff",
                             border: "#384e4e",
@@ -195,7 +196,7 @@
             nodes[tx_id] = {
                 group: "transaction",
                 id: tx_id,
-                label: tx_id.substring(0, 8),
+                label: `${tx_id.substring(0, 16)}\n*${isodatetime}*`,
                 blockHeight: data.block_height,
                 title: `Block height: ${data.block_height}\nTotal input: ${inputTotal}\n${isodatetime}`,
                 value: inputTotal,
