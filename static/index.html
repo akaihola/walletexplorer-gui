@@ -118,6 +118,7 @@
                 },
                 interaction: { keyboard: true },
                 groups: {
+                    time: { shape: "text" },
                     transaction: {
                         shape: "ellipse",
                         color: {
@@ -246,12 +247,20 @@
             const response = await fetch(`/api/1/tx?txid=${tx_id}&caller=walletexplorer-gui`);
             const data = await response.json();
             const inputTotal = data.in.reduce((sum, input) => sum + input.amount, 0);
+            const isodatetime = new Date(data.time * 1000).toISOString().replace("T", " ").replace(/\.\d+Z$/, "");
+            nodes[data.time.toString()] = {
+                group: "time",
+                id: data.time.toString(),
+                label: isodatetime,
+                blockHeight: data.block_height,
+                title: `Block height: ${data.block_height}\n${isodatetime}`
+            };
             nodes[tx_id] = {
                 group: "transaction",
                 id: tx_id,
                 label: tx_id.substring(0, 8),
                 blockHeight: data.block_height,
-                title: `Block height: ${data.block_height}, Total input: ${inputTotal}`,
+                title: `Block height: ${data.block_height}\nTotal input: ${inputTotal}\n${isodatetime}`,
                 value: inputTotal,
                 shape: "box",
                 scaling: {
