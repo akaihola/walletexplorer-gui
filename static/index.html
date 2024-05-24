@@ -95,6 +95,7 @@
         }
 
         function logScaler(min, max, total, value) {
+            if (max === min) return 0;
             const log_min = Math.log(min);
             const log_max = Math.log(max);
             const log_val = Math.log(value);
@@ -256,8 +257,8 @@
                 scaling: {
                     label: {
                         enabled: true,
-                        min: 10,
-                        max: 30
+                        min: 15,
+                        max: 50
                     },
                     customScalingFunction: logScaler
                 }
