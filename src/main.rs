@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::convert::Infallible;
 
 use warp::Filter;
@@ -14,6 +15,7 @@ async fn main() {
     // API proxy
     let api_proxy = warp::path("api")
         .and(warp::path::full())
+        .and(warp::filters::query::query())
         .and_then(proxy_handler);
 
     // Combine the routes
@@ -24,9 +26,11 @@ async fn main() {
 }
 
 // Proxy handler function
-async fn proxy_handler(full_path: FullPath) -> Result<impl warp::Reply, Infallible> {
+async fn proxy_handler(full_path: FullPath, params: HashMap<String, String>) -> Result<impl warp::Reply, Infallible> {
     let client = Client::new();
-    let uri = format!("http://www.walletexplorer.com{}", full_path.as_str())
+    let path = full_path.as_str();
+    let query = serde_urlencoded::to_string(&params).unwrap();
+    let uri = format!("http://www.walletexplorer.com{}?{}", path, query)
         .parse::<Uri>()
         .unwrap();
 

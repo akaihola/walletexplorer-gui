@@ -515,6 +515,7 @@ name = "minimal_web_server"
 version = "0.1.0"
 dependencies = [
  "reqwest",
+ "serde_urlencoded",
  "tokio",
  "warp",
 ]
