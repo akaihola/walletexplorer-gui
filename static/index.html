@@ -243,7 +243,11 @@
                     to: tx_id,
                     label: truncateFloat(input.amount),
                     value: input.amount,
-                    title: `${input.amount.toString()}\n${input.address}`
+                    title: `${input.amount.toString()}\n${input.address}`,
+                    smooth: {
+                        type: "vertical",
+                        roundness: 0.9
+                    },
                 };
             });
             const heights = new Set(
