@@ -102,6 +102,16 @@
             return (log_val - log_min) / (log_max - log_min);
         }
 
+        function truncateFloat(value) {
+            if (value < 100) {
+                const coeff = Math.pow(10, 2 - Math.ceil(Math.log10(value)));
+                return (Math.round(coeff * value) / coeff).toString();
+            }
+            if (value >= 100000) return truncateFloat(value / 1000000.0) + "M";
+            if (value >= 500) return truncateFloat(value / 1000.0) + "k";
+            return value.toString()
+        }
+
         function draw() {
             destroy();
             nodes = {};
@@ -283,7 +293,7 @@
                 edges[`${tx_id}-${output.address}`] = {
                     from: tx_id,
                     to: output.address,
-                    label: output.amount.toString(),
+                    label: truncateFloat(output.amount),
                     value: output.amount,
                     title: `${output.amount.toString()}\n${output.address}`
                 };
@@ -300,7 +310,7 @@
                 edges[`${input.address}-${tx_id}`] = {
                     from: input.address,
                     to: tx_id,
-                    label: input.amount.toString(),
+                    label: truncateFloat(input.amount),
                     value: input.amount,
                     title: `${input.amount.toString()}\n${input.address}`
                 };
