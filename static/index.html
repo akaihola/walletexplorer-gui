@@ -68,11 +68,10 @@
     <script type="text/javascript" src="/js/exampleUtil.js"></script>
 
     <script type="text/javascript">
-        var nodes = null;
-        var edges = null;
+        var nodes = {};
+        var edges = {};
         var network = null;
         // make the graph empty when the page is loaded
-        var data = { nodes: [], edges: [] };
         var seed = 2;
 
         function destroy() {
@@ -84,8 +83,8 @@
 
         function draw() {
             destroy();
-            nodes = [];
-            edges = [];
+            nodes = {};
+            edges = {};
 
             // create a network
             var container = document.getElementById("mynetwork");
@@ -136,7 +135,11 @@
                     },
                 },
             };
-            network = new vis.Network(container, data, options);
+            network = new vis.Network(
+                container,
+                { nodes: Object.values(nodes), edges: Object.values(edges) },
+                options
+            );
         }
 
         function clearPopUp() {
@@ -161,28 +164,65 @@
             draw();
         }
 
-        function addTransaction() {
+        async function addTransaction() {
             const tx_id = document.getElementById("tx_id").value;
             if (tx_id.length !== 64) {
                 alert("Transaction ID must be 64 characters long");
                 return;
             }
+            await addTx(tx_id);
+            network.setData({ nodes: Object.values(nodes), edges: Object.values(edges) });
+        }
+
+        async function addTx(tx_id) {
             // Query the transaction from /api/1/tx?txid=:tx_id&caller=walletexplorer-gui
             // and add it to the graph:
-            fetch(`/api/1/tx?txid=${tx_id}&caller=walletexplorer-gui`)
-                .then((response) => response.json() )
-                .then((data) => {
-                    nodes.push({ id: tx_id, label: tx_id.substring(0, 8) });
-                    data.in.forEach((input) => {
-                        nodes.push({ id: input.address, label: input.address.substring(0, 8) });
-                        edges.push({ from: input.address, to: tx_id, label: input.amount.toString() });
-                    });
-                    data.out.forEach((output) => {
-                        nodes.push({ id: output.address, label: output.address.substring(0, 8) });
-                        edges.push({ from: tx_id, to: output.address, label: output.amount.toString() });
-                    });
-                    network.setData({ nodes: nodes, edges: edges });
-                });
+            const response = await fetch(`/api/1/tx?txid=${tx_id}&caller=walletexplorer-gui`);
+            const data = await response.json();
+            nodes[tx_id] = {
+                group: "transaction",
+                id: tx_id,
+                label: tx_id.substring(0, 8)
+            };
+            data.in.forEach((input) => {
+                nodes[input.address] = {
+                    group: "address",
+                    id: input.address,
+                    label: input.address.substring(0, 8),
+                    nextTx: input.next_tx
+                };
+                edges[`${input.address}-${tx_id}`] = {
+                    from: input.address,
+                    to: tx_id,
+                    label: input.amount.toString()
+                };
+            });
+            data.out.forEach((output) => {
+                nodes[output.address] = {
+                    group: "address",
+                    id: output.address,
+                    label: output.address.substring(0, 8),
+                    nextTx: output.next_tx
+                };
+                edges[`${tx_id}-${output.address}`] = {
+                    from: tx_id,
+                    to: output.address,
+                    label: output.amount.toString()
+                };
+            });
+        }
+
+        async function expandAddress() {
+            const selectedNodeIds = network.getSelectedNodes();
+            const selectdAddresses = selectedNodeIds.filter((nodeId) => nodes[nodeId].group === "address");
+            if (selectdAddresses.length === 0) {
+                alert("Please select an address node");
+                return;
+            }
+            for (const address of selectdAddresses) {
+                await addTx(nodes[address].nextTx);
+            };
+            network.setData({ nodes: Object.values(nodes), edges: Object.values(edges) });
         }
     </script>
 </head>
@@ -194,6 +234,11 @@
     <label for="tx_id">Transaction ID:</label>
     <input type="text" id="tx_id" name="tx_id" size="64" maxlength="64">
     <input type="button" value="Add" onclick="addTransaction()">
+</p>
+
+<!-- A button for expanding the selected address: -->
+<p>
+    <input type="button" value="Expand selected address" onclick="expandAddress()">
 </p>
 
 
