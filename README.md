@@ -46,6 +46,21 @@ Other things you can do:
 - Click on the "Download" button to save the network graph as a PNG image.
 - Reload the page to start over.
 
+License
+-------
+
+`walletexplorer-gui` is dual licensed under both
+
+  1. The Apache 2.0 License
+     http://www.apache.org/licenses/LICENSE-2.0
+
+     and
+
+  2. The MIT License
+     http://opensource.org/licenses/MIT
+
+`walletexplorer-gui` may be distributed under either license.
+
 [w]: https://www.walletexplorer.com/
 [r]: https://www.rust-lang.org/tools/install
 [c]: https://doc.rust-lang.org/cargo/getting-started/installation.html
