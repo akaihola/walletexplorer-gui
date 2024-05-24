@@ -94,6 +94,13 @@
             }
         }
 
+        function logScaler(min, max, total, value) {
+            const log_min = Math.log(min);
+            const log_max = Math.log(max);
+            const log_val = Math.log(value);
+            return (log_val - log_min) / (log_max - log_min);
+        }
+
         function draw() {
             destroy();
             nodes = {};
@@ -104,12 +111,48 @@
             var options = {
                 layout: {
                     hierarchical: {
-                        direction: "LR"
+                        direction: "UD"
                     },
                     randomSeed: seed  // just to make sure the layout stays the same when re-drawing
                 },
                 interaction: { keyboard: true },
-                edges: { arrows: "to" },
+                groups: {
+                    transaction: {
+                        shape: "ellipse",
+                        color: {
+                            background: "#bbffff",
+                            border: "#384e4e",
+                            highlight: {
+                                background: "#ffffff",
+                                border: "#384e4e"
+                            }
+                        }
+                    },
+                    address: {
+                        shape: "box",
+                        color: {
+                            background: "#ffffbb",
+                            border: "#4e4e38",
+                            highlight: {
+                                background: "#ffffff",
+                                border: "#4e4e38"
+                            }
+                        }
+                    }
+                },
+                edges: {
+                    arrows: "to",
+                    arrowStrikethrough: true,
+                    endPointOffset: {
+                        from: -50,
+                        to: 50
+                    },
+                    scaling: {
+                        min: 0.2,
+                        max: 7,
+                        customScalingFunction: logScaler,
+                    }
+                },
                 manipulation: {
                     addNode: function (data, callback) {
                         // filling in the popup DOM elements
@@ -201,27 +244,24 @@
             // and add it to the graph:
             const response = await fetch(`/api/1/tx?txid=${tx_id}&caller=walletexplorer-gui`);
             const data = await response.json();
+            const inputTotal = data.in.reduce((sum, input) => sum + input.amount, 0);
             nodes[tx_id] = {
                 group: "transaction",
                 id: tx_id,
                 label: tx_id.substring(0, 8),
                 blockHeight: data.block_height,
-                title: `Block height: ${data.block_height}`
+                title: `Block height: ${data.block_height}, Total input: ${inputTotal}`,
+                value: inputTotal,
+                shape: "box",
+                scaling: {
+                    label: {
+                        enabled: true,
+                        min: 10,
+                        max: 30
+                    },
+                    customScalingFunction: logScaler
+                }
             };
-            data.in.forEach((input) => {
-                nodes[input.address] = {
-                    group: "address",
-                    id: input.address,
-                    label: input.address.substring(0, 8),
-                    nextTx: input.next_tx,
-                    blockHeight: data.block_height - 0.5
-                };
-                edges[`${input.address}-${tx_id}`] = {
-                    from: input.address,
-                    to: tx_id,
-                    label: input.amount.toString()
-                };
-            });
             data.out.forEach((output) => {
                 nodes[output.address] = {
                     group: "address",
@@ -233,7 +273,23 @@
                 edges[`${tx_id}-${output.address}`] = {
                     from: tx_id,
                     to: output.address,
-                    label: output.amount.toString()
+                    label: output.amount.toString(),
+                    value: output.amount
+                };
+            });
+            data.in.forEach((input) => {
+                nodes[input.address] = {
+                    group: "address",
+                    id: input.address,
+                    label: input.address.substring(0, 8),
+                    nextTx: input.next_tx,
+                    blockHeight: data.block_height - 0.5
+                };
+                edges[`${input.address}-${tx_id}`] = {
+                    from: input.address,
+                    to: tx_id,
+                    label: input.amount.toString(),
+                    value: input.amount
                 };
             });
             const heights = new Set(
